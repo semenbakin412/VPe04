@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Test App</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #222;
+      --accent: #0b72ff;
+      --accent-hover: #0058cc;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container {
+      max-width: 960px;
+      margin: 24px auto;
+      padding: 16px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: var(--accent-hover);
+    }
+    .inline-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 90px;
+    }
+    pre {
+      background: #111;
+      color: #f1f1f1;
+      border-radius: 8px;
+      padding: 12px;
+      overflow-x: auto;
+      min-height: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Flask + Nginx + Docker</h1>
+      <p>Кнопки ниже вызывают Flask API через Nginx-прокси (`/api/...`).</p>
+      <div class="actions">
+        <button onclick="checkHealth()">Проверка health</button>
+        <button onclick="getHomeInfo()">Главная информация</button>
+        <button onclick="getSystemInfo()">Информация о системе</button>
+      </div>
+
+      <div class="inline-form">
+        <input id="mulA" type="number" placeholder="a" value="10" />
+        <input id="mulB" type="number" placeholder="b" value="5" />
+        <button onclick="multiply()">Умножить</button>
+      </div>
+
+      <div class="inline-form">
+        <input id="divA" type="number" placeholder="a" value="20" />
+        <input id="divB" type="number" placeholder="b" value="4" />
+        <button onclick="divide()">Разделить</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ответ API</h2>
+      <pre id="output">Нажмите кнопку для запроса...</pre>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "/api";
+    const output = document.getElementById("output");
+
+    async function request(path) {
+      try {
+        const response = await fetch(`${API_BASE}${path}`);
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = `Ошибка: ${error.message}`;
+      }
+    }
+
+    function checkHealth() {
+      request("/health");
+    }
+
+    function getHomeInfo() {
+      request("/");
+    }
+
+    function getSystemInfo() {
+      request("/info");
+    }
+
+    function multiply() {
+      const a = document.getElementById("mulA").value;
+      const b = document.getElementById("mulB").value;
+      request(`/multiply/${a}/${b}`);
+    }
+
+    function divide() {
+      const a = document.getElementById("divA").value;
+      const b = document.getElementById("divB").value;
+      request(`/divide/${a}/${b}`);
+    }
+
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>
