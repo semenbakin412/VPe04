@@ -100,23 +100,3 @@ docker compose down
    Если репозиторий/пакет приватный — часто нужен ещё доступ к репо (GitHub подскажет при ошибке pull).
 
 Важно: `GITHUB_TOKEN` вручную добавлять не нужно, он есть в Actions автоматически, но **на сервере его нет**, поэтому для `docker pull` нужен `GHCR_TOKEN`.
-
-## 4) Как “сдать работу” (чеклист)
-
-1. Проект пушится в GitHub в ветку `main`.
-2. После push откройте вкладку `Actions`:
-   - workflow `Build and Deploy` должен завершиться успешно (оба job зелёные).
-3. В GHCR должен появиться образ:
-   - `ghcr.io/<owner>/flask-test-app:latest`
-4. На сервере после деплоя:
-   - `docker ps` показывает `flask-backend` и `nginx-frontend`
-   - `curl http://<server-ip>/api/health` возвращает `{"status":"healthy",...}`
-
-### Что приложить как доказательство
-
-- Скриншот вкладки `Actions` с зелёными job
-- Скриншот/лог, что образ появился в `Packages` (GHCR)
-- Вывод на сервере:
-  - `docker ps`
-  - `curl http://168.222.143.87/api/health`
-
