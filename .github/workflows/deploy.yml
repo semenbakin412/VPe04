@@ -46,10 +46,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Для pull из GHCR на сервере нужен токен, который доступен именно на сервере.
-            # Создайте secrets GHCR_USERNAME и GHCR_TOKEN (PAT с правами read:packages).
-            docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" -p "${{ secrets.GHCR_TOKEN }}"
+            # Для pull из GHCR на сервере используем PAT из secrets.
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             docker pull ghcr.io/${{ github.repository_owner }}/flask-test-app:latest
             docker stop flask-test-app || true
             docker rm flask-test-app || true
+            docker ps --filter "publish=5000" -q | xargs -r docker rm -f
             docker run -d --name flask-test-app --restart unless-stopped -p 5000:5000 ghcr.io/${{ github.repository_owner }}/flask-test-app:latest
