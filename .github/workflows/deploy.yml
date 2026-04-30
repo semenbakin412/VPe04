@@ -64,7 +64,17 @@ jobs:
 
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             echo "BACKEND_IMAGE=ghcr.io/${{ github.repository_owner }}/flask-test-app:latest" > .env
-            docker compose down --remove-orphans || true
+            export COMPOSE_PROJECT_NAME=flask-test-app
+
+            # Stop and remove any legacy containers that can conflict by name or ports.
             docker rm -f flask-backend nginx-frontend flask-test-app 2>/dev/null || true
-            docker compose pull backend
-            docker compose up -d --no-build --force-recreate --remove-orphans
+            docker ps -aq --filter name='^/flask-backend$' | xargs -r docker rm -f
+            docker ps -aq --filter name='^/nginx-frontend$' | xargs -r docker rm -f
+            docker ps -aq --filter name='^/flask-test-app$' | xargs -r docker rm -f
+
+            # Remove possible stale networks from previous project names.
+            docker network rm flask-test-app_app-network actions_app-network 2>/dev/null || true
+
+            docker compose -p "$COMPOSE_PROJECT_NAME" down --remove-orphans || true
+            docker compose -p "$COMPOSE_PROJECT_NAME" pull backend
+            docker compose -p "$COMPOSE_PROJECT_NAME" up -d --no-build --force-recreate --remove-orphans
