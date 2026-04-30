@@ -1,9 +1,9 @@
 services:
   backend:
+    image: ${BACKEND_IMAGE:-flask-test-app:local}
     build:
       context: .
       dockerfile: Dockerfile
-    image: flask-test-app:local
     container_name: flask-backend
     ports:
       - "5000:5000"

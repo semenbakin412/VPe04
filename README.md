@@ -45,9 +45,11 @@ docker compose ps
 
 ### Шаг 3. Проверьте в браузере
 
-- Frontend: `http://localhost`
-- Backend напрямую: `http://localhost:5000/health`
-- Backend через nginx proxy: `http://localhost/api/health`
+- Frontend (локально): `http://localhost`
+- Frontend (на сервере): `http://168.222.143.87`
+- Backend напрямую (локально): `http://localhost:5000/health`
+- Backend через nginx proxy (локально): `http://localhost/api/health`
+- Backend через nginx proxy (на сервере): `http://168.222.143.87/api/health`
 
 ### Шаг 4. Проверьте API командами
 
@@ -57,6 +59,8 @@ curl http://localhost/api/info
 curl http://localhost/api/multiply/10/5
 curl http://localhost/api/divide/20/4
 curl -i http://localhost/api/divide/10/0
+curl http://168.222.143.87/api/health
+curl http://168.222.143.87/api/multiply/10/5
 ```
 
 Ожидаемо:
@@ -78,9 +82,10 @@ docker compose down
 1. `build-and-push` — собирает образ и пушит в GHCR:
    - `ghcr.io/<owner>/flask-test-app:latest`
    - `ghcr.io/<owner>/flask-test-app:<sha>`
-2. `deploy` — подключается по SSH к серверу и запускает контейнер:
-   - контейнер на сервере называется `flask-test-app`
-   - порт `5000` публикуется наружу
+2. `deploy` — подключается по SSH к серверу, копирует `docker-compose.yml` и `frontend`,
+   затем запускает оба сервиса через `docker compose`:
+   - `backend` из GHCR образа (`ghcr.io/<owner>/flask-test-app:latest`)
+   - `frontend` (nginx) на порту `80` с прокси в backend
 
 ### Какие Secrets нужно добавить в GitHub
 
@@ -104,8 +109,8 @@ docker compose down
 3. В GHCR должен появиться образ:
    - `ghcr.io/<owner>/flask-test-app:latest`
 4. На сервере после деплоя:
-   - `docker ps` показывает контейнер `flask-test-app`
-   - `curl http://<server-ip>:5000/health` возвращает `{"status":"healthy",...}`
+   - `docker ps` показывает `flask-backend` и `nginx-frontend`
+   - `curl http://<server-ip>/api/health` возвращает `{"status":"healthy",...}`
 
 ### Что приложить как доказательство
 
@@ -113,5 +118,5 @@ docker compose down
 - Скриншот/лог, что образ появился в `Packages` (GHCR)
 - Вывод на сервере:
   - `docker ps`
-  - `curl http://localhost:5000/health` (или внешний адрес)
+  - `curl http://168.222.143.87/api/health`
 

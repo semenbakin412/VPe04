@@ -47,6 +47,10 @@ docker compose ps
 - API напрямую: [http://localhost:5000/health](http://localhost:5000/health)
 - API через Nginx: [http://localhost/api/health](http://localhost/api/health)
 
+Для проверки преподавателем с внешней машины используйте:
+- сайт: [http://168.222.143.87](http://168.222.143.87)
+- API через Nginx: [http://168.222.143.87/api/health](http://168.222.143.87/api/health)
+
 ## 4) Полезные команды
 
 Логи:
@@ -74,6 +78,8 @@ curl http://localhost/api/health
 curl http://localhost/api/info
 curl http://localhost/api/multiply/10/5
 curl http://localhost/api/divide/20/4
+curl http://168.222.143.87/api/health
+curl http://168.222.143.87/api/multiply/10/5
 ```
 
 ## 6) Как работает GitHub Actions деплой
@@ -83,7 +89,8 @@ Workflow в `.github/workflows/deploy.yml` запускается при `push` 
 2. Пушит image в GHCR:
    - `ghcr.io/<owner>/flask-test-app:latest`
    - `ghcr.io/<owner>/flask-test-app:<commit_sha>`
-3. По SSH подключается к серверу и перезапускает контейнер.
+3. По SSH подключается к серверу, копирует `docker-compose.yml` и `frontend`,
+   затем запускает `backend + frontend` через `docker compose`.
 
 ## 7) Что нужно добавить в Secrets на GitHub
 
@@ -92,6 +99,8 @@ Workflow в `.github/workflows/deploy.yml` запускается при `push` 
 - `SSH_HOST` — IP/домен сервера
 - `SSH_USER` — пользователь SSH
 - `SSH_PRIVATE_KEY` — приватный ключ (без пароля или с заранее настроенной поддержкой)
+- `GHCR_USERNAME` — GitHub username владельца образа
+- `GHCR_TOKEN` — PAT для pull из GHCR на сервере (`read:packages`)
 
 `GITHUB_TOKEN` создавать не нужно: GitHub даёт его автоматически внутри workflow.
 
