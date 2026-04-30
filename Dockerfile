@@ -2,6 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+LABEL org.opencontainers.image.source="https://github.com/semenbakin412/VPe04"
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
